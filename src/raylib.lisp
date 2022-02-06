@@ -528,41 +528,41 @@
          (rheight (foreign-slot-value source-rec '(:struct %rectangle) 'height)))
      (make-patch-info :rec (make-rectangle :x rx :y ry :width rwidth :height :rheight) :left left :top top :right right :bottom bottom :layout layout))))
 
-;;// Font character info
-;;typedef struct CharInfo {
+;;// GlyphInfo, font characters glyphs info
+;;typedef struct GlyphInfo {
 ;;    int value;              // Character value (Unicode)
 ;;    int offsetX;            // Character offset X when drawing
 ;;    int offsetY;            // Character offset Y when drawing
 ;;    int advanceX;           // Character advance position X
 ;;    Image image;            // Character image data
-;;} CharInfo;
-(defcstruct (%char-info :class char-info-type)
- "Font character info"
+;;} GlyphInfo;
+(defcstruct (%glyph-info :class glyph-info-type)
+ "Font characters glyphs info"
  (value :int)
  (offset-x :int)
  (offset-y :int)
  (advance-x :int)
  (image (:struct %image)))
 
-(defstruct char-info
+(defstruct glyph-info
  value offset-x offset-y advance-x image)
 
-(defmethod translate-into-foreign-memory (object (type char-info-type) pointer)
-  (with-foreign-slots ((value offset-x offset-y advance-x) pointer (:struct %char-info))
-                      (convert-into-foreign-memory (char-info-image object) '(:struct %image) (foreign-slot-pointer pointer '(:struct %char-info) 'image))
-                      (setf value (char-info-value object))
-                      (setf offset-x (char-info-offset-x object))
-                      (setf offset-y (char-info-offset-y object))
-                      (setf advance-x (char-info-advance-x object))))
+(defmethod translate-into-foreign-memory (object (type glyph-info-type) pointer)
+  (with-foreign-slots ((value offset-x offset-y advance-x) pointer (:struct %glyph-info))
+                      (convert-into-foreign-memory (glyph-info-image object) '(:struct %image) (foreign-slot-pointer pointer '(:struct %glyph-info) 'image))
+                      (setf value (glyph-info-value object))
+                      (setf offset-x (glyph-info-offset-x object))
+                      (setf offset-y (glyph-info-offset-y object))
+                      (setf advance-x (glyph-info-advance-x object))))
 
-(defmethod translate-from-foreign (pointer (type char-info-type))
-  (with-foreign-slots ((value offset-x offset-y advance-x image) pointer (:struct %char-info))
+(defmethod translate-from-foreign (pointer (type glyph-info-type))
+  (with-foreign-slots ((value offset-x offset-y advance-x image) pointer (:struct %glyph-info))
    (let ((image-data (foreign-slot-value image '(:struct %image) 'data))
          (image-width (foreign-slot-value image '(:struct %image) 'width))
          (image-height (foreign-slot-value image '(:struct %image) 'height))
          (image-maps (foreign-slot-value image '(:struct %image) 'maps))
          (image-ft (foreign-slot-value image '(:struct %image) 'ft)))
-     (make-char-info :value value
+     (make-glyph-info :value value
                      :offset-x offset-x
                      :offset-y offset-y
                      :advance-x advance-x
@@ -585,7 +585,7 @@
  (chars-count :int)
  (texture (:struct %texture))
  (recs :pointer)
- (chars (:pointer (:struct %char-info))))
+ (chars (:pointer (:struct %glyph-info))))
 
 (defstruct font
   base-size chars-count texture recs chars)
