@@ -1,19 +1,20 @@
 (in-package #:cl-raylib)
 ;;/**********************************************************************************************
 ;;*
-;;*   raylib - A simple and easy-to-use library to enjoy videogames programming (www.raylib.com)
+;;*   raylib v4.0 - A simple and easy-to-use library to enjoy videogames programming (www.raylib.com)
 ;;*
 ;;*   FEATURES:
 ;;*       - NO external dependencies, all required libraries included with raylib
-;;*       - Multiplatform: Windows, Linux, FreeBSD, OpenBSD, NetBSD, DragonFly, MacOS, UWP, Android, Raspberry Pi, HTML5.
+;;*       - Multiplatform: Windows, Linux, FreeBSD, OpenBSD, NetBSD, DragonFly,
+;;*                        MacOS, Haiku, Android, Raspberry Pi, DRM native, HTML5.
 ;;*       - Written in plain C code (C99) in PascalCase/camelCase notation
-;;*       - Hardware accelerated with OpenGL (1.1, 2.1, 3.3 or ES2 - choose at compile)
+;;*       - Hardware accelerated with OpenGL (1.1, 2.1, 3.3, 4.3 or ES2 - choose at compile)
 ;;*       - Unique OpenGL abstraction layer (usable as standalone module): [rlgl]
 ;;*       - Multiple Fonts formats supported (TTF, XNA fonts, AngelCode fonts)
 ;;*       - Outstanding texture formats support, including compressed formats (DXT, ETC, ASTC)
 ;;*       - Full 3d support for 3d Shapes, Models, Billboards, Heightmaps and more!
 ;;*       - Flexible Materials system, supporting classic maps and PBR maps
-;;*       - Skeletal Animation support (CPU bones-based animation)
+;;*       - Animated 3D models supported (skeletal bones animation) (IQM)
 ;;*       - Shaders support, including Model shaders and Postprocessing shaders
 ;;*       - Powerful math module for Vector, Matrix and Quaternion operations: [raymath]
 ;;*       - Audio loading and playing with streaming support (WAV, OGG, MP3, FLAC, XM, MOD)
@@ -21,29 +22,32 @@
 ;;*       - Bindings to multiple programming languages available!
 ;;*
 ;;*   NOTES:
-;;*       One custom font is loaded by default when InitWindow() [core]
-;;*       If using OpenGL 3.3 or ES2, one default shader is loaded automatically (internally defined) [rlgl]
-;;*       If using OpenGL 3.3 or ES2, several vertex buffers (VAO/VBO) are created to manage lines-triangles-quads
+;;*       - One default Font is loaded on InitWindow()->LoadFontDefault() [core, text]
+;;*       - One default Texture2D is loaded on rlglInit(), 1x1 white pixel R8G8B8A8 [rlgl] (OpenGL 3.3 or ES2)
+;;*       - One default Shader is loaded on rlglInit()->rlLoadShaderDefault() [rlgl] (OpenGL 3.3 or ES2)
+;;*       - One default RenderBatch is loaded on rlglInit()->rlLoadRenderBatch() [rlgl] (OpenGL 3.3 or ES2)
 ;;*
 ;;*   DEPENDENCIES (included):
-;;*       [core] rglfw (github.com/glfw/glfw) for window/context management and input (only PLATFORM_DESKTOP)
-;;*       [rlgl] glad (github.com/Dav1dde/glad) for OpenGL 3.3 extensions loading (only PLATFORM_DESKTOP)
-;;*       [raudio] miniaudio (github.com/dr-soft/miniaudio) for audio device/context management
+;;*       [rcore] rglfw (Camilla Löwy - github.com/glfw/glfw) for window/context management and input (PLATFORM_DESKTOP)
+;;*       [rlgl] glad (David Herberth - github.com/Dav1dde/glad) for OpenGL 3.3 extensions loading (PLATFORM_DESKTOP)
+;;*       [raudio] miniaudio (David Reid - github.com/mackron/miniaudio) for audio device/context management
 ;;*
 ;;*   OPTIONAL DEPENDENCIES (included):
-;;*       [core] rgif (Charlie Tangora, Ramon Santamaria) for GIF recording
-;;*       [textures] stb_image (Sean Barret) for images loading (BMP, TGA, PNG, JPEG, HDR...)
-;;*       [textures] stb_image_write (Sean Barret) for image writting (BMP, TGA, PNG, JPG)
-;;*       [textures] stb_image_resize (Sean Barret) for image resizing algorithms
-;;*       [textures] stb_perlin (Sean Barret) for Perlin noise image generation
-;;*       [text] stb_truetype (Sean Barret) for ttf fonts loading
-;;*       [text] stb_rect_pack (Sean Barret) for rectangles packing
-;;*       [models] par_shapes (Philip Rideout) for parametric 3d shapes generation
-;;*       [models] tinyobj_loader_c (Syoyo Fujita) for models loading (OBJ, MTL)
-;;*       [models] cgltf (Johannes Kuhlmann) for models loading (glTF)
-;;*       [raudio] stb_vorbis (Sean Barret) for OGG audio loading
+;;*       [rcore] msf_gif (Miles Fogle) for GIF recording
+;;*       [rcore] sinfl (Micha Mettke) for DEFLATE decompression algorythm
+;;*       [rcore] sdefl (Micha Mettke) for DEFLATE compression algorythm
+;;*       [rtextures] stb_image (Sean Barret) for images loading (BMP, TGA, PNG, JPEG, HDR...)
+;;*       [rtextures] stb_image_write (Sean Barret) for image writing (BMP, TGA, PNG, JPG)
+;;*       [rtextures] stb_image_resize (Sean Barret) for image resizing algorithms
+;;*       [rtext] stb_truetype (Sean Barret) for ttf fonts loading
+;;*       [rtext] stb_rect_pack (Sean Barret) for rectangles packing
+;;*       [rmodels] par_shapes (Philip Rideout) for parametric 3d shapes generation
+;;*       [rmodels] tinyobj_loader_c (Syoyo Fujita) for models loading (OBJ, MTL)
+;;*       [rmodels] cgltf (Johannes Kuhlmann) for models loading (glTF)
+;;*       [raudio] dr_wav (David Reid) for WAV audio file loading
 ;;*       [raudio] dr_flac (David Reid) for FLAC audio file loading
 ;;*       [raudio] dr_mp3 (David Reid) for MP3 audio file loading
+;;*       [raudio] stb_vorbis (Sean Barret) for OGG audio loading
 ;;*       [raudio] jar_xm (Joshua Reisenauer) for XM audio module loading
 ;;*       [raudio] jar_mod (Joshua Reisenauer) for MOD audio module loading
 ;;*
@@ -53,7 +57,7 @@
 ;;*   raylib is licensed under an unmodified zlib/libpng license, which is an OSI-certified,
 ;;*   BSD-like license that allows static linking with closed source software:
 ;;*
-;;*   Copyright (c) 2013-2020 Ramon Santamaria (@raysan5)
+;;*   Copyright (c) 2013-2021 Ramon Santamaria (@raysan5)
 ;;*
 ;;*   This software is provided "as-is", without any express or implied warranty. In no event
 ;;*   will the authors be held liable for any damages arising from the use of this software.
@@ -77,17 +81,20 @@
 ;;
 ;;#include <stdarg.h>     // Required for: va_list - Only used by TraceLogCallback
 ;;
+;;#define RAYLIB_VERSION  "4.0"
+;;
+;;// Function specifiers in case library is build/used as a shared library (Windows)
+;;// NOTE: Microsoft specifiers to tell compiler that symbols are imported/exported from a .dll
 ;;#if defined(_WIN32)
-;;    // Microsoft attibutes to tell compiler that symbols are imported/exported from a .dll
 ;;    #if defined(BUILD_LIBTYPE_SHARED)
-;;        #define RLAPI __declspec(dllexport)     // We are building raylib as a Win32 shared library (.dll)
+;;        #define RLAPI __declspec(dllexport)     // We are building the library as a Win32 shared library (.dll)
 ;;    #elif defined(USE_LIBTYPE_SHARED)
-;;        #define RLAPI __declspec(dllimport)     // We are using raylib as a Win32 shared library (.dll)
-;;    #else
-;;        #define RLAPI   // We are building or using raylib as a static library
+;;        #define RLAPI __declspec(dllimport)     // We are using the library as a Win32 shared library (.dll)
 ;;    #endif
-;;#else
-;;    #define RLAPI       // We are building or using raylib as a static library (or Linux shared library)
+;;#endif
+;;
+;;#ifndef RLAPI
+;;    #define RLAPI       // Functions defined as 'extern' by default (implicit specifiers)
 ;;#endif
 ;;
 ;;//----------------------------------------------------------------------------------
@@ -96,11 +103,12 @@
 ;;#ifndef PI
 ;;    #define PI 3.14159265358979323846f
 ;;#endif
-;;
-;;#define DEG2RAD (PI/180.0f)
-;;#define RAD2DEG (180.0f/PI)
-;;
-;;#define MAX_TOUCH_POINTS        10      // Maximum number of touch points supported
+;;#ifndef DEG2RAD
+;;    #define DEG2RAD (PI/180.0f)
+;;#endif
+;;#ifndef RAD2DEG
+;;    #define RAD2DEG (180.0f/PI)
+;;#endif
 ;;
 ;;// Allow custom memory allocators
 ;;#ifndef RL_MALLOC
@@ -116,13 +124,25 @@
 ;;    #define RL_FREE(ptr)        free(ptr)
 ;;#endif
 ;;
-;;// NOTE: MSC C++ compiler does not support compound literals (C99 feature)
-;;// Plain structures in C++ (without constructors) can be initialized from { } initializers.
+;;// NOTE: MSVC C++ compiler does not support compound literals (C99 feature)
+;;// Plain structures in C++ (without constructors) can be initialized with { }
 ;;#if defined(__cplusplus)
 ;;    #define CLITERAL(type)      type
 ;;#else
 ;;    #define CLITERAL(type)      (type)
 ;;#endif
+;;
+;;// NOTE: We set some defines with some data types declared by raylib
+;;// Other modules (raymath, rlgl) also require some of those types, so,
+;;// to be able to use those other modules as standalone (not depending on raylib)
+;;// this defines are very useful for internal check and avoid type (re)definitions
+;;#define RL_COLOR_TYPE
+;;#define RL_RECTANGLE_TYPE
+;;#define RL_VECTOR2_TYPE
+;;#define RL_VECTOR3_TYPE
+;;#define RL_VECTOR4_TYPE
+;;#define RL_QUATERNION_TYPE
+;;#define RL_MATRIX_TYPE
 ;;
 ;;// Some Basic Colors
 ;;// NOTE: Custom raylib color palette for amazing visuals on WHITE background
