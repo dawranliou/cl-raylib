@@ -446,39 +446,36 @@
   (with-foreign-slots ((id width height mipmaps format) pointer (:struct %texture))
                       (make-texture :id id :width width :height height :mipmaps mipmaps :format format)))
 
-;;// TextureCubemap type, actually, same as Texture2D
-;;typedef Texture2D TextureCubemap;
+;;// TextureCubemap, same as Texture
+;;typedef Texture TextureCubemap;
 (defctype texture-cubemap (:struct %texture))
 
-;;// RenderTexture2D type, for texture rendering
-;;typedef struct RenderTexture2D {
-;;    unsigned int id;        // OpenGL Framebuffer Object (FBO) id
-;;    Texture2D texture;      // Color buffer attachment texture
-;;    Texture2D depth;        // Depth buffer attachment texture
-;;    bool depthTexture;      // Track if depth attachment is a texture or renderbuffer
-;;} RenderTexture2D;
+;;// RenderTexture, fbo for texture rendering
+;;typedef struct RenderTexture {
+;;    unsigned int id;        // OpenGL framebuffer object id
+;;    Texture texture;        // Color buffer attachment texture
+;;    Texture depth;          // Depth buffer attachment texture
+;;} RenderTexture;
 ;;
-;;// RenderTexture type, same as RenderTexture2D
-;;typedef RenderTexture2D RenderTexture;
+;;// RenderTexture2D, same as RenderTexture
+;;typedef RenderTexture RenderTexture2D;
 (defcstruct (%render-texture :class render-texture-type)
  "RenderTexture2D type, for texture rendering"
  (id :unsigned-int)
  (texture (:struct %texture))
- (depth (:struct %texture))
- (depth-texture :boolean))
+ (depth (:struct %texture)))
 
 (defstruct render-texture
- id texture depth depth-texture)
+ id texture depth)
 
 (defmethod translate-into-foreign-memory (object (type render-texture-type) pointer)
-  (with-foreign-slots ((id  depth-texture) pointer (:struct %render-texture))
+  (with-foreign-slots ((id) pointer (:struct %render-texture))
                       (convert-into-foreign-memory (render-texture-texture object) '(:struct %texture) (foreign-slot-pointer pointer '(:struct %render-texture) 'texture))
                       (convert-into-foreign-memory (render-texture-depth object) '(:struct %texture) (foreign-slot-pointer pointer '(:struct %render-texture) 'depth))
-                      (setf id (render-texture-id object))
-                      (setf depth-texture (render-texture-depth-texture object))))
+                      (setf id (render-texture-id object))))
 
 (defmethod translate-from-foreign (pointer (type render-texture-type))
-  (with-foreign-slots ((id texture depth depth-texture) pointer (:struct %render-texture))
+  (with-foreign-slots ((id texture depth) pointer (:struct %render-texture))
                       (let* ((tid (foreign-slot-value texture '(:struct %texture) 'id))
                              (twidth (foreign-slot-value texture '(:struct %texture) 'width))
                              (theight (foreign-slot-value texture '(:struct %texture) 'height))
@@ -491,8 +488,7 @@
                              (dformat (foreign-slot-value depth '(:struct %texture) 'format)))
                         (make-render-texture :id id
                                              :texture (make-texture :id tid :width twidth :height theight :mipmaps tmipmaps :format tformat)
-                                             :depth (make-texture :id did :width dwidth :height dheight :mipmaps dmipmaps :format dformat)
-                                             :depth-texture depth-texture))))
+                                             :depth (make-texture :id did :width dwidth :height dheight :mipmaps dmipmaps :format dformat)))))
 ;;
 ;;// N-Patch layout info
 ;;typedef struct NPatchInfo {
