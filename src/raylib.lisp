@@ -200,12 +200,6 @@
 ;;#define RAYWHITE   CLITERAL(Color){ 245, 245, 245, 255 }   // My own White (raylib logo)
 (define-constant +raywhite+    '(245 245 245 255) :test #'equal)
 
-;;// Temporal hack to avoid breaking old codebases using
-;;// deprecated raylib implementation of these functions
-;;#define FormatText  TextFormat
-;;#define SubText     TextSubtext
-;;#define ShowWindow  UnhideWindow
-;;#define LoadText    LoadFileText
 ;;
 ;;//----------------------------------------------------------------------------------
 ;;// Structures Definition
@@ -214,13 +208,14 @@
 ;;#if defined(__STDC__) && __STDC_VERSION__ >= 199901L
 ;;    #include <stdbool.h>
 ;;#elif !defined(__cplusplus) && !defined(bool)
-;;    typedef enum { false, true } bool;
+;;    typedef enum bool { false, true } bool;
+;;    #define RL_BOOL_TYPE
 ;;#endif
 ;;
-;;// Vector2 type
+;;// Vector2, 2 components
 ;;typedef struct Vector2 {
-;;    float x;
-;;    float y;
+;;    float x;                // Vector x component
+;;    float y;                // Vector y component
 ;;} Vector2;
 (defcstruct (%vector2 :class vector2-type)
  "Vector2 type"
@@ -239,11 +234,11 @@
   (with-foreign-slots ((x y) pointer (:struct %vector2))
                       (make-vector2 :x x :y y)))
 
-;;// Vector3 type
+;;// Vector3, 3 components
 ;;typedef struct Vector3 {
-;;    float x;
-;;    float y;
-;;    float z;
+;;    float x;                // Vector x component
+;;    float y;                // Vector y component
+;;    float z;                // Vector z component
 ;;} Vector3;
 (defcstruct (%vector3 :class vector3-type)
  "Vector3 type"
@@ -264,12 +259,12 @@
   (with-foreign-slots ((x y z) pointer (:struct %vector3))
                       (make-vector3 :x x :y y :z z)))
 
-;;// Vector4 type
+;;// Vector4, 4 components
 ;;typedef struct Vector4 {
-;;    float x;
-;;    float y;
-;;    float z;
-;;    float w;
+;;    float x;                // Vector x component
+;;    float y;                // Vector y component
+;;    float z;                // Vector z component
+;;    float w;                // Vector w component
 ;;} Vector4;
 (defcstruct (%vector4 :class vector4-type)
  "Vector4 type"
@@ -286,21 +281,21 @@
                       (setf x (coerce (vector4-x object) 'float))
                       (setf y (coerce (vector4-y object) 'float))
                       (setf z (coerce (vector4-z object) 'float))
-		      (setf w (coerce (vector4-w object) 'float))))
+                      (setf w (coerce (vector4-w object) 'float))))
 
 (defmethod translate-from-foreign (pointer (type vector4-type))
   (with-foreign-slots ((x y z w) pointer (:struct %vector4))
                       (make-vector4 :x x :y y :z z :w w)))
 ;;
-;;// Quaternion type, same as Vector4
+;;// Quaternion, 4 components (Vector4 alias)
 ;;typedef Vector4 Quaternion;
 ;;
-;;// Matrix type (OpenGL style 4x4 - right handed, column major)
+;;// Matrix, 4x4 components, column major, OpenGL style, right handed
 ;;typedef struct Matrix {
-;;    float m0, m4, m8, m12;
-;;    float m1, m5, m9, m13;
-;;    float m2, m6, m10, m14;
-;;    float m3, m7, m11, m15;
+;;    float m0, m4, m8, m12;  // Matrix first row (4 components)
+;;    float m1, m5, m9, m13;  // Matrix second row (4 components)
+;;    float m2, m6, m10, m14; // Matrix third row (4 components)
+;;    float m3, m7, m11, m15; // Matrix fourth row (4 components)
 ;;} Matrix;
 (defcstruct (%matrix :class matrix-type)
   "Matrix type (OpenGL style 4x4"
@@ -332,12 +327,12 @@
   (with-foreign-slots ((m0 m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12 m13 m14 m15) pointer (:struct %matrix))
                       (list m0 m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12 m13 m14 m15)))
 
-;;// Color type, RGBA (32bit)
+;;// Color, 4 components, R8G8B8A8 (32bit)
 ;;typedef struct Color {
-;;    unsigned char r;
-;;    unsigned char g;
-;;    unsigned char b;
-;;    unsigned char a;
+;;    unsigned char r;        // Color red value
+;;    unsigned char g;        // Color green value
+;;    unsigned char b;        // Color blue value
+;;    unsigned char a;        // Color alpha value
 ;;} Color;
 (defcstruct (%color :class color-type)
   "Color type, RGBA (32bit)"
@@ -357,12 +352,12 @@
   (with-foreign-slots ((r g b a) pointer (:struct %color))
    (list r g b a)))
 
-;;// Rectangle type
+;;// Rectangle, 4 components
 ;;typedef struct Rectangle {
-;;    float x;
-;;    float y;
-;;    float width;
-;;    float height;
+;;    float x;                // Rectangle top-left corner position x
+;;    float y;                // Rectangle top-left corner position y
+;;    float width;            // Rectangle width
+;;    float height;           // Rectangle height
 ;;} Rectangle;
 (defcstruct (%rectangle :class rectangle-type)
   "Rectangle type"
@@ -385,8 +380,7 @@
   (with-foreign-slots ((x y width height) pointer (:struct %rectangle))
                       (make-rectangle :x x :y y :width width :height height)))
 
-;;// Image type, bpp always RGBA (32bit)
-;;// NOTE: Data stored in CPU memory (RAM)
+;;// Image, pixel data stored in CPU memory (RAM)
 ;;typedef struct Image {
 ;;    void *data;             // Image raw data
 ;;    int width;              // Image base width
@@ -417,18 +411,17 @@
   (with-foreign-slots ((data width height maps ft) pointer (:struct %image))
   (make-image :data data :width width :height height :maps maps :ft ft)))
 
-;;// Texture2D type
-;;// NOTE: Data stored in GPU memory
-;;typedef struct Texture2D {
+;;// Texture, tex data stored in GPU memory (VRAM)
+;;typedef struct Texture {
 ;;    unsigned int id;        // OpenGL texture id
 ;;    int width;              // Texture base width
 ;;    int height;             // Texture base height
 ;;    int mipmaps;            // Mipmap levels, 1 by default
 ;;    int format;             // Data format (PixelFormat type)
-;;} Texture2D;
+;;} Texture;
 ;;
-;;// Texture type, same as Texture2D
-;;typedef Texture2D Texture;
+;;// Texture2D, same as Texture
+;;typedef Texture Texture2D;
 ;;
 (defcstruct (%texture :class texture-type)
   "Texture type"
