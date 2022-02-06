@@ -490,14 +490,14 @@
                                              :texture (make-texture :id tid :width twidth :height theight :mipmaps tmipmaps :format tformat)
                                              :depth (make-texture :id did :width dwidth :height dheight :mipmaps dmipmaps :format dformat)))))
 ;;
-;;// N-Patch layout info
+;;// NPatchInfo, n-patch layout info
 ;;typedef struct NPatchInfo {
-;;    Rectangle sourceRec;   // Region in the texture
-;;    int left;              // left border offset
-;;    int top;               // top border offset
-;;    int right;             // right border offset
-;;    int bottom;            // bottom border offset
-;;    int type;              // layout of the n-patch: 3x3, 1x3 or 3x1
+;;    Rectangle source;       // Texture source rectangle
+;;    int left;               // Left border offset
+;;    int top;                // Top border offset
+;;    int right;              // Right border offset
+;;    int bottom;             // Bottom border offset
+;;    int layout;             // Layout of the n-patch: 3x3, 1x3 or 3x1
 ;;} NPatchInfo;
 (defcstruct (%patch-info :class patch-info-type)
  "N-Patch layout info"
@@ -506,27 +506,27 @@
  (top :int)
  (right :int)
  (bottom :int)
- (type :int))
+ (layout :int))
 
 (defstruct patch-info
- rec left top right bottom type)
+ rec left top right bottom layout)
 
 (defmethod translate-into-foreign-memory (object (type patch-info-type) pointer)
-  (with-foreign-slots ((left top right bottom type) pointer (:struct %patch-info))
+  (with-foreign-slots ((left top right bottom layout) pointer (:struct %patch-info))
                       (convert-into-foreign-memory (patch-info-rec object) '(:struct %rectangle) (foreign-slot-pointer pointer '(:struct %patch-info) 'source-rec))
                       (setf left (patch-info-left object))
                       (setf top (patch-info-top object))
                       (setf right (patch-info-right object))
                       (setf bottom (patch-info-bottom object))
-                      (setf type (patch-info-type object))))
+                      (setf layout (patch-info-layout object))))
 
 (defmethod translate-from-foreign (pointer (type patch-info-type))
-  (with-foreign-slots ((source-rec left top right bottom type) pointer (:struct %patch-info))
+  (with-foreign-slots ((source-rec left top right bottom layout) pointer (:struct %patch-info))
    (let ((rx (foreign-slot-value source-rec '(:struct %rectangle) 'x))
          (ry (foreign-slot-value source-rec '(:struct %rectangle) 'y))
          (rwidth (foreign-slot-value source-rec '(:struct %rectangle) 'width))
          (rheight (foreign-slot-value source-rec '(:struct %rectangle) 'height)))
-     (make-patch-info :rec (make-rectangle :x rx :y ry :width rwidth :height :rheight) :left left :top top :right right :bottom bottom :type type))))
+     (make-patch-info :rec (make-rectangle :x rx :y ry :width rwidth :height :rheight) :left left :top top :right right :bottom bottom :layout layout))))
 
 ;;// Font character info
 ;;typedef struct CharInfo {
