@@ -569,47 +569,50 @@
                      :image (make-image :data image-data :width image-width :height image-height :maps image-maps :ft image-ft)))))
  
 ;;
-;;// Font type, includes texture and charSet array data
+;;// Font, font texture and GlyphInfo array data
 ;;typedef struct Font {
 ;;    int baseSize;           // Base size (default chars height)
-;;    int charsCount;         // Number of characters
-;;    Texture2D texture;      // Characters texture atlas
-;;    Rectangle *recs;        // Characters rectangles in texture
-;;    CharInfo *chars;        // Characters info data
+;;    int glyphCount;         // Number of glyph characters
+;;    int glyphPadding;       // Padding around the glyph characters
+;;    Texture2D texture;      // Texture atlas containing the glyphs
+;;    Rectangle *recs;        // Rectangles in texture for the glyphs
+;;    GlyphInfo *glyphs;      // Glyphs info data
 ;;} Font;
 ;;
-;;#define SpriteFont Font     // SpriteFont type fallback, defaults to Font
 (defcstruct (%font :class font-type)
- "Font type, includes texture and charSet array data"
+ "Font, font texture and GlyphInfo array data"
  (base-size :int)
- (chars-count :int)
+ (glyph-count :int)
+ (glyph-padding :int)
  (texture (:struct %texture))
  (recs :pointer)
- (chars (:pointer (:struct %glyph-info))))
+ (glyphs (:pointer (:struct %glyph-info))))
 
 (defstruct font
-  base-size chars-count texture recs chars)
+  base-size glyph-count glyph-padding texture recs glyphs)
 
 (defmethod translate-into-foreign-memory (object (type font-type) pointer)
-  (with-foreign-slots ((base-size chars-count recs chars) pointer (:struct %font))
+  (with-foreign-slots ((base-size glyph-count glyph-padding recs glyphs) pointer (:struct %font))
                       (convert-into-foreign-memory (font-texture object) '(:struct %texture) (foreign-slot-pointer pointer '(:struct %font) 'texture))
                       (setf base-size (font-base-size object))
-                      (setf chars-count (font-chars-count object))
+                      (setf glyph-count (font-glyph-count object))
+                      (setf glyph-padding (font-glyph-padding object))
                       (setf recs (font-recs object))
-                      (setf chars (font-chars object))))
+                      (setf glyphs (font-glyphs object))))
 
 (defmethod translate-from-foreign (pointer (type font-type))
-  (with-foreign-slots ((base-size chars-count texture recs chars) pointer (:struct %font))
+  (with-foreign-slots ((base-size glyph-count glyph-padding texture recs glyphs) pointer (:struct %font))
                       (let ((tid (foreign-slot-value texture '(:struct %texture) 'id))
                             (twidth (foreign-slot-value texture '(:struct %texture) 'width))
                             (theight (foreign-slot-value texture '(:struct %texture) 'height))
                             (tmipmaps (foreign-slot-value texture '(:struct %texture) 'mipmaps))
                             (tformat (foreign-slot-value texture '(:struct %texture) 'format)))
                         (make-font :base-size base-size
-                                   :chars-count chars-count
+                                   :glyph-count glyph-count
+                                   :glyph-padding glyph-padding
                                    :texture (make-texture :id tid :width twidth :height theight :mipmaps tmipmaps :format tformat)
                                    :recs recs
-                                   :chars chars))))
+                                   :glyphs glyphs))))
 
 ;;// Camera type, defines a camera position/orientation in 3d space
 ;;typedef struct Camera3D {
