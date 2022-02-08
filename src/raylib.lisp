@@ -660,7 +660,7 @@
                                        :fovy fovy
                                        :projection projection))))
 
-;;// Camera2D type, defines a 2d camera
+;;// Camera2D, defines position/orientation in 2d space
 ;;typedef struct Camera2D {
 ;;    Vector2 offset;         // Camera offset (displacement from target)
 ;;    Vector2 target;         // Camera target (rotation and zoom origin)
