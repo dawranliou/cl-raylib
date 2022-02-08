@@ -614,13 +614,13 @@
                                    :recs recs
                                    :glyphs glyphs))))
 
-;;// Camera type, defines a camera position/orientation in 3d space
+;;// Camera, defines position/orientation in 3d space
 ;;typedef struct Camera3D {
 ;;    Vector3 position;       // Camera position
 ;;    Vector3 target;         // Camera target it looks-at
 ;;    Vector3 up;             // Camera up vector (rotation over its axis)
 ;;    float fovy;             // Camera field-of-view apperture in Y (degrees) in perspective, used as near plane width in orthographic
-;;    int type;               // Camera type, defines projection type: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
+;;    int projection;         // Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
 ;;} Camera3D;
 ;;
 ;;typedef Camera3D Camera;    // Camera type fallback, defaults to Camera3D
@@ -630,21 +630,21 @@
  (target (:struct %vector3))
  (up (:struct %vector3))
  (fovy :float)
- (type :int))
+ (projection :int))
 
 (defstruct camera3d
-  position target up fovy type)
+  position target up fovy projection)
 
 (defmethod translate-into-foreign-memory (object (type camera3d-type) pointer)
-  (with-foreign-slots ((fovy type) pointer (:struct %camera3d))
+  (with-foreign-slots ((fovy projection) pointer (:struct %camera3d))
                       (convert-into-foreign-memory (camera3d-position object) '(:struct %vector3) (foreign-slot-pointer pointer '(:struct %camera3d) 'position))
                       (convert-into-foreign-memory (camera3d-target object) '(:struct %vector3) (foreign-slot-pointer pointer '(:struct %camera3d) 'target))
                       (convert-into-foreign-memory (camera3d-up object) '(:struct %vector3) (foreign-slot-pointer pointer '(:struct %camera3d) 'up))
                       (setf fovy (coerce (camera3d-fovy object) 'float)
-                            type (camera3d-type object))))
+                            projection (camera3d-projection object))))
 
 (defmethod translate-from-foreign (pointer (type camera3d-type))
-  (with-foreign-slots ((position target up fovy type) pointer (:struct %camera3d))
+  (with-foreign-slots ((position target up fovy projection) pointer (:struct %camera3d))
                       (let ((px (foreign-slot-value position '(:struct %vector3) 'x))
                             (py (foreign-slot-value position '(:struct %vector3) 'y))
                             (pz (foreign-slot-value position '(:struct %vector3) 'z))
@@ -658,7 +658,7 @@
                                        :target (make-vector3 :x tx :y ty :z tz)
                                        :up (make-vector3 :x ux :y uy :z uz)
                                        :fovy fovy
-                                       :type type))))
+                                       :projection projection))))
 
 ;;// Camera2D type, defines a 2d camera
 ;;typedef struct Camera2D {
