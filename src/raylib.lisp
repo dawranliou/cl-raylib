@@ -1051,10 +1051,10 @@
   (with-foreign-slots ((sample-rate sample-size channels buffer) pointer (:struct %audio-stream))
                       (list sample-rate sample-size channels buffer)))
 
-;;// Sound source type
+;;// Sound
 ;;typedef struct Sound {
-;;    unsigned int sampleCount;       // Total number of samples
-;;    AudioStream stream;             // Audio stream
+;;    AudioStream stream;         // Audio stream
+;;    unsigned int frameCount;    // Total number of frames (considering channels)
 ;;} Sound;
 (defcstruct (%sound :class sound-type)
  "Sound source type"
