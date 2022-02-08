@@ -995,33 +995,33 @@
   (list min max)))
 
 ;;
-;;// Wave type, defines audio wave data
+;;// Wave, audio wave data
 ;;typedef struct Wave {
-;;    unsigned int sampleCount;       // Total number of samples
-;;    unsigned int sampleRate;        // Frequency (samples per second)
-;;    unsigned int sampleSize;        // Bit depth (bits per sample): 8, 16, 32 (24 not supported)
-;;    unsigned int channels;          // Number of channels (1-mono, 2-stereo)
-;;    void *data;                     // Buffer data pointer
+;;    unsigned int frameCount;    // Total number of frames (considering channels)
+;;    unsigned int sampleRate;    // Frequency (samples per second)
+;;    unsigned int sampleSize;    // Bit depth (bits per sample): 8, 16, 32 (24 not supported)
+;;    unsigned int channels;      // Number of channels (1-mono, 2-stereo, ...)
+;;    void *data;                 // Buffer data pointer
 ;;} Wave;
 (defcstruct (%wave :class wave-type)
  "Wave type, defines audio wave data"
- (sample-count :unsigned-int)
+ (frame-count :unsigned-int)
  (sample-rate :unsigned-int)
  (sample-size :unsigned-int)
  (channels :unsigned-int)
  (data :pointer))
 
 (defmethod translate-into-foreign-memory (object (type wave-type) pointer)
- (with-foreign-slots ((sample-count sample-rate sample-size channels data) pointer (:struct %wave))
-                      (setf sample-count (nth 0 object))
+ (with-foreign-slots ((frame-count sample-rate sample-size channels data) pointer (:struct %wave))
+                      (setf frame-count (nth 0 object))
                       (setf sample-rate (nth 1 object))
                       (setf sample-size (nth 2 object))
                       (setf channels (nth 3 object))
                       (setf data (nth 4 object))))
 
 (defmethod translate-from-foreign (pointer (type wave-type))
- (with-foreign-slots ((sample-count sample-rate sample-size channels data) pointer (:struct %wave))
- (list sample-count sample-rate sample-size channels data)))
+ (with-foreign-slots ((frame-count sample-rate sample-size channels data) pointer (:struct %wave))
+ (list frame-count sample-rate sample-size channels data)))
 ;;
 ;;typedef struct rAudioBuffer rAudioBuffer;
 ;;
