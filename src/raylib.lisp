@@ -1025,14 +1025,13 @@
 ;;
 ;;typedef struct rAudioBuffer rAudioBuffer;
 ;;
-;;// Audio stream type
-;;// NOTE: Useful to create custom audio streams not bound to a specific file
+;;// AudioStream, custom audio stream
 ;;typedef struct AudioStream {
-;;    unsigned int sampleRate;        // Frequency (samples per second)
-;;    unsigned int sampleSize;        // Bit depth (bits per sample): 8, 16, 32 (24 not supported)
-;;    unsigned int channels;          // Number of channels (1-mono, 2-stereo)
+;;    rAudioBuffer *buffer;       // Pointer to internal data used by the audio system
 ;;
-;;    rAudioBuffer *buffer;           // Pointer to internal data used by the audio system
+;;    unsigned int sampleRate;    // Frequency (samples per second)
+;;    unsigned int sampleSize;    // Bit depth (bits per sample): 8, 16, 32 (24 not supported)
+;;    unsigned int channels;      // Number of channels (1-mono, 2-stereo, ...)
 ;;} AudioStream;
 (defcstruct (%audio-stream :class audio-stream-type)
  "Audio stream type"
