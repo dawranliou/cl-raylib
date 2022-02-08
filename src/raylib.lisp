@@ -1103,18 +1103,18 @@
   (with-foreign-slots ((ctx-type ctx-data frame-count loop-count stream) pointer (:struct %music))
                       (list ctx-type ctx-data frame-count loop-count stream)))
 
-;;// Head-Mounted-Display device parameters
+;;// VrDeviceInfo, Head-Mounted-Display device parameters
 ;;typedef struct VrDeviceInfo {
-;;    int hResolution;                // HMD horizontal resolution in pixels
-;;    int vResolution;                // HMD vertical resolution in pixels
-;;    float hScreenSize;              // HMD horizontal size in meters
-;;    float vScreenSize;              // HMD vertical size in meters
-;;    float vScreenCenter;            // HMD screen center in meters
-;;    float eyeToScreenDistance;      // HMD distance between eye and display in meters
-;;    float lensSeparationDistance;   // HMD lens separation distance in meters
-;;    float interpupillaryDistance;   // HMD IPD (distance between pupils) in meters
-;;    float lensDistortionValues[4];  // HMD lens distortion constant parameters
-;;    float chromaAbCorrection[4];    // HMD chromatic aberration correction parameters
+;;    int hResolution;                // Horizontal resolution in pixels
+;;    int vResolution;                // Vertical resolution in pixels
+;;    float hScreenSize;              // Horizontal size in meters
+;;    float vScreenSize;              // Vertical size in meters
+;;    float vScreenCenter;            // Screen center in meters
+;;    float eyeToScreenDistance;      // Distance between eye and display in meters
+;;    float lensSeparationDistance;   // Lens separation distance in meters
+;;    float interpupillaryDistance;   // IPD (distance between pupils) in meters
+;;    float lensDistortionValues[4];  // Lens distortion constant parameters
+;;    float chromaAbCorrection[4];    // Chromatic aberration correction parameters
 ;;} VrDeviceInfo;
 (defcstruct (%vr-device-info :class vr-device-info-type)
  "Head-Mounted-Display device parameters"
