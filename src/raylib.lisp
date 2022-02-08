@@ -975,7 +975,7 @@
  (with-foreign-slots ((hit distance point normal) pointer (:struct %ray-collision))
                      (list hit distance point normal)))
 ;;
-;;// Bounding box type
+;;// BoundingBox
 ;;typedef struct BoundingBox {
 ;;    Vector3 min;            // Minimum vertex box-corner
 ;;    Vector3 max;            // Maximum vertex box-corner
