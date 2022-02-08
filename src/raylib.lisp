@@ -930,7 +930,7 @@
                      (list bone-count bones frame-count frame-poses)))
 
 ;;
-;;// Ray type (useful for raycast)
+;;// Ray, ray for raycasting
 ;;typedef struct Ray {
 ;;    Vector3 position;       // Ray position (origin)
 ;;    Vector3 direction;      // Ray direction
