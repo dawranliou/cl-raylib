@@ -1072,38 +1072,36 @@
   (with-foreign-slots ((sample-count stream) pointer (:struct %sound))
                       (list sample-count stream)))
 ;;
-;;// Music stream type (audio file streaming from memory)
-;;// NOTE: Anything longer than ~10 seconds should be streamed
+;;// Music, audio stream, anything longer than ~10 seconds should be streamed
 ;;typedef struct Music {
-;;    int ctxType;                    // Type of music context (audio filetype)
-;;    void *ctxData;                  // Audio context data, depends on type
+;;    AudioStream stream;         // Audio stream
+;;    unsigned int frameCount;    // Total number of frames (considering channels)
+;;    bool looping;               // Music looping enable
 ;;
-;;    unsigned int sampleCount;       // Total number of samples
-;;    unsigned int loopCount;         // Loops count (times music will play), 0 means infinite loop
-;;
-;;    AudioStream stream;             // Audio stream
+;;    int ctxType;                // Type of music context (audio filetype)
+;;    void *ctxData;              // Audio context data, depends on type
 ;;} Music;
 (defcstruct (%music :class music-type)
  "Music stream type (audio file streaming from memory)"
  (ctx-type :int)
  (ctx-data :pointer)
- (sample-count :unsigned-int)
+ (frame-count :unsigned-int)
  (loop-count :unsigned-int)
  (stream (:struct %audio-stream)))
 
 (defmethod translate-into-foreign-memory (object (type music-type) pointer)
- (with-foreign-slots ((ctx-type ctx-data sample-count loop-count stream) pointer (:struct %music))
+ (with-foreign-slots ((ctx-type ctx-data frame-count loop-count stream) pointer (:struct %music))
                       (setf ctx-type (nth 0 object))
                       (setf ctx-data (nth 1 object))
-                      (setf sample-count (nth 2 object))
+                      (setf frame-count (nth 2 object))
                       (setf loop-count (nth 3 object))
                       (convert-into-foreign-memory (nth 4 object)
                                                    '(:struct %audio-stream)
                                                    (foreign-slot-pointer pointer '(:struct %music) 'stream))))
 
 (defmethod translate-from-foreign (pointer (type music-type))
-  (with-foreign-slots ((ctx-type ctx-data sample-count loop-count stream) pointer (:struct %music))
-                      (list ctx-type ctx-data sample-count loop-count stream)))
+  (with-foreign-slots ((ctx-type ctx-data frame-count loop-count stream) pointer (:struct %music))
+                      (list ctx-type ctx-data frame-count loop-count stream)))
 
 ;;// Head-Mounted-Display device parameters
 ;;typedef struct VrDeviceInfo {
