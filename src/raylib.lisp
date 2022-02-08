@@ -904,12 +904,11 @@
  (with-foreign-slots ((mesh transform material bone-count bones bind-pose) pointer (:struct %model))
                      (list mesh transform material bone-count bones bind-pose)))
 ;;
-;;// Model animation
+;;// ModelAnimation
 ;;typedef struct ModelAnimation {
 ;;    int boneCount;          // Number of bones
-;;    BoneInfo *bones;        // Bones information (skeleton)
-;;
 ;;    int frameCount;         // Number of animation frames
+;;    BoneInfo *bones;        // Bones information (skeleton)
 ;;    Transform **framePoses; // Poses array by frame
 ;;} ModelAnimation;
 (defcstruct (%model-animation :class model-animation-type)
