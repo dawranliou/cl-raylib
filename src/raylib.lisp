@@ -950,31 +950,30 @@
                       (list position direction)))
 
 ;;
-;;// Raycast hit information
-;;typedef struct RayHitInfo {
+;;// RayCollision, ray hit information
+;;typedef struct RayCollision {
 ;;    bool hit;               // Did the ray hit something?
 ;;    float distance;         // Distance to nearest hit
-;;    Vector3 position;       // Position of nearest hit
+;;    Vector3 point;          // Point of nearest hit
 ;;    Vector3 normal;         // Surface normal of hit
-;;} RayHitInfo;
-(defcstruct (%ray-hit-info :class ray-hit-info-type)
- "Raycast hit information"
+;;} RayCollision;
+(defcstruct (%ray-collision :class ray-collision-type)
+ "RayCollision, ray hit information"
  (hit :boolean)
  (distance :float)
- (position (:struct %vector3))
+ (point (:struct %vector3))
  (normal (:struct %vector3)))
 
-(defmethod translate-into-foreign-memory (object (type ray-hit-info-type) pointer)
- (with-foreign-slots ((hit distance position normal) pointer (:struct %ray-hit-info))
+(defmethod translate-into-foreign-memory (object (type ray-collision-type) pointer)
+ (with-foreign-slots ((hit distance point normal) pointer (:struct %ray-collision))
                       (setf hit (nth 0 object))
                       (setf distance (nth 1 object))
-                      (setf position (nth 2 object))
+                      (setf point (nth 2 object))
                       (setf normal (nth 3 object))))
 
-(defmethod translate-from-foreign (pointer (type ray-hit-info-type))
- (with-foreign-slots ((hit distance position normal) pointer (:struct %ray-hit-info))
-                     (list hit distance position normal)))
-
+(defmethod translate-from-foreign (pointer (type ray-collision-type))
+ (with-foreign-slots ((hit distance point normal) pointer (:struct %ray-collision))
+                     (list hit distance point normal)))
 ;;
 ;;// Bounding box type
 ;;typedef struct BoundingBox {
